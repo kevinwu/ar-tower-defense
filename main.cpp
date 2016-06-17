@@ -7,6 +7,7 @@
 //
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <glfw/glfw3.h> /// this also includes other openGL headers
 
 int main(int argc, const char * argv[]) {
     // insert code here...
