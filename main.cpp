@@ -24,9 +24,9 @@ int main(int argc, const char * argv[]) {
     CvMemStorage* memStorage =cvCreateMemStorage();
     
     /// Initialize values
-    int alpha_slider = 95;
+    int alpha_slider =85;
     
-    VideoCapture cap(0); // open the default camera
+    VideoCapture cap(1); // open the default camera
     if(!cap.isOpened()) { // check if we succeeded
         std::cout << "No camera found!\n"; //In this case, we show the supplied video
     }
@@ -34,7 +34,7 @@ int main(int argc, const char * argv[]) {
     namedWindow("Threshold Image",1);
     createTrackbar("Threshold Trackbar", "Threshold Image", &alpha_slider, 255, NULL);
     
-    
+    int numberFrameCaptures = 0;
     
     for(;;)
     {
@@ -47,14 +47,24 @@ int main(int argc, const char * argv[]) {
         
         threshold(grayFrame, thresholded, alpha_slider, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
         
-        
         CvSeq* contours;
         CvMat thresholded_(thresholded);
         
         cvFindContours(&thresholded_, memStorage, &contours);
         
+        Point2f marker1MiddlePoint;
+        Point2f marker2MiddlePoint;
+        
+        int numberSeenContours = 0;
+        
         //traversing all contours
         for(; contours; contours = contours->h_next){
+            
+            
+            
+            if(numberSeenContours==2){
+                break;
+            }
             
             CvSeq* result = cvApproxPoly(contours, sizeof(CvContour), memStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contours)*0.02);
             
@@ -65,7 +75,7 @@ int main(int argc, const char * argv[]) {
             Rect r = boundingRect(result_);
             
             //check for size
-            if (r.height<100 || r.width<100 || r.height>150|| r.width>150|| r.width > thresholded.cols - 10 || r.height > thresholded.rows - 10) {
+            if (r.height<40 || r.width<40 || r.height>250|| r.width>250|| r.width > thresholded.cols - 10 || r.height > thresholded.rows - 10) {
                 continue;
             }
             
@@ -157,46 +167,20 @@ int main(int argc, const char * argv[]) {
                 fitLine(point_mat, lineParamsMat.col(i), CV_DIST_L2, 0, 0.01, 0.01);
             }
             
-            Point2f cornerPoints[4];
-            
-            findPreciseCornerPoints(cornerPoints, lineParamsMat);
-            
-            drawCornerPoints(frame, cornerPoints);
+            if(numberSeenContours==0){
+                marker1MiddlePoint = findMarkerMiddlePoint(lineParamsMat);
+   
+            } else{
+                
+                marker2MiddlePoint = findMarkerMiddlePoint(lineParamsMat);
+      
+            }
             
             //We now try to rectify the marker. First, we need to calculate the projective matrix
             Point2f destinationRectangle[4];
             
             //initialise destinationRectangle
             initialiseMarkerRectangle(destinationRectangle);
-            
-            Mat projMat(Size(3,3), CV_32FC1);
-            projMat = getPerspectiveTransform(cornerPoints, destinationRectangle);
-            
-            //Let's get the rectified marker
-            Mat rectified(Size(6,6), CV_8UC1);
-            
-            warpPerspective(grayFrame, rectified, projMat, Size(6,6));
-            
-            //Threshold the ID image
-            threshold(rectified, rectified, 60, 255, CV_THRESH_BINARY);
-            
-            bool hasBlackBorder = checkForBlackBorder(rectified);
-            
-            //We now have to discard all markers that do not have a black border
-            if(!hasBlackBorder){
-                //cout << yolo++;
-                //cout << "\n";
-                continue;
-            }
-        
-            //magnify and show threshold marker
-            magnifyAndShowMarker(rectified);
-            
-            //Let's generate a 16 bit identifier
-            string markerIdentifier = generateMarkerIdentifier(rectified);
-            
-            cout << markerIdentifier;
-            cout << "\n";
             
             /*
             // transfer screen coords to camera coords
@@ -226,6 +210,24 @@ int main(int argc, const char * argv[]) {
             cout << "length: " << sqrt(x*x+y*y+z*z) << "\n";
             cout << "\n";
              */
+            numberSeenContours++;
+            
+        }
+        
+        Point2f extrapolatedCorner1(marker1MiddlePoint.x, marker2MiddlePoint.y);
+        Point2f extrapolatedCorner2(marker2MiddlePoint.x, marker1MiddlePoint.y);
+        
+        Point2f gameBoardPoints[4];
+        gameBoardPoints[0] = extrapolatedCorner1;
+        gameBoardPoints[1] = extrapolatedCorner2;
+        gameBoardPoints[2] = marker1MiddlePoint;
+        gameBoardPoints[3] = marker2MiddlePoint;
+        
+        if(numberFrameCaptures > 6){
+            circle(frame, marker1MiddlePoint, 6, Scalar(0,255,255), -1);
+            circle(frame, marker2MiddlePoint, 6, Scalar(0,255,255), -1);
+            circle(frame, extrapolatedCorner1, 6, Scalar(0,255,255), -1);
+            circle(frame, extrapolatedCorner2, 6, Scalar(0,255,255), -1);
         }
         
         imshow("Threshold Image", frame);
@@ -237,6 +239,8 @@ int main(int argc, const char * argv[]) {
         
         //Reinitialise heap- at end of processing loop
         cvClearMemStorage(memStorage);
+        
+        numberFrameCaptures++;
     }
     
     //release heap (program exit)
