@@ -18,8 +18,6 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     
-    int yolo = 0;
-    
     //create heap on startup
     CvMemStorage* memStorage =cvCreateMemStorage();
     
@@ -52,8 +50,10 @@ int main(int argc, const char * argv[]) {
         
         cvFindContours(&thresholded_, memStorage, &contours);
         
-        Point2f marker1MiddlePoint;
-        Point2f marker2MiddlePoint;
+        Point2f marker1Point;
+        Point2f marker2Point;
+        Mat lineParamsMarker1;
+        Mat lineParamsMarker2;
         
         int numberSeenContours = 0;
         
@@ -167,12 +167,17 @@ int main(int argc, const char * argv[]) {
                 fitLine(point_mat, lineParamsMat.col(i), CV_DIST_L2, 0, 0.01, 0.01);
             }
             
+            Point2f cornerPoints[4];
+            
+            findPreciseCornerPoints(cornerPoints, lineParamsMat);
+            
             if(numberSeenContours==0){
-                marker1MiddlePoint = findMarkerMiddlePoint(lineParamsMat);
+                marker1Point = cornerPoints[1];
+                lineParamsMarker1 = lineParamsMat;
    
             } else{
-                
-                marker2MiddlePoint = findMarkerMiddlePoint(lineParamsMat);
+                marker2Point = cornerPoints[2];
+                lineParamsMarker2 = lineParamsMat;
       
             }
             
@@ -213,21 +218,35 @@ int main(int argc, const char * argv[]) {
             numberSeenContours++;
             
         }
-        
-        Point2f extrapolatedCorner1(marker1MiddlePoint.x, marker2MiddlePoint.y);
-        Point2f extrapolatedCorner2(marker2MiddlePoint.x, marker1MiddlePoint.y);
-        
-        Point2f gameBoardPoints[4];
-        gameBoardPoints[0] = extrapolatedCorner1;
-        gameBoardPoints[1] = extrapolatedCorner2;
-        gameBoardPoints[2] = marker1MiddlePoint;
-        gameBoardPoints[3] = marker2MiddlePoint;
+
         
         if(numberFrameCaptures > 6){
-            circle(frame, marker1MiddlePoint, 6, Scalar(0,255,255), -1);
-            circle(frame, marker2MiddlePoint, 6, Scalar(0,255,255), -1);
-            circle(frame, extrapolatedCorner1, 6, Scalar(0,255,255), -1);
-            circle(frame, extrapolatedCorner2, 6, Scalar(0,255,255), -1);
+            if(marker1Point.x>marker2Point.x){
+                Point2f tmpPoint = marker1Point;
+                marker1Point = marker2Point;
+                marker2Point = tmpPoint;
+                
+                Mat tmpMat = lineParamsMarker1;
+                lineParamsMarker1 = lineParamsMarker2;
+                lineParamsMarker2 = tmpMat;
+            }
+            
+            Point2f implicitCorners[2];
+            
+            if(!findTwoImplicitCorners(marker1Point, lineParamsMarker1, marker2Point, lineParamsMarker2, implicitCorners)){
+                continue;
+            };
+            
+            circle(frame, marker1Point, 6, Scalar(0,255,255), -1);
+            circle(frame, marker2Point, 6, Scalar(0,255,255), -1);
+            circle(frame, implicitCorners[0], 6, Scalar(0,255,255), -1);
+            circle(frame, implicitCorners[1], 6, Scalar(0,255,255), -1);
+            
+            Point2f gameBoardCorners[4];
+            gameBoardCorners[0] = marker1Point;
+            gameBoardCorners[1] = marker2Point;
+            gameBoardCorners[2] = implicitCorners[0];
+            gameBoardCorners[3] = implicitCorners[0];
         }
         
         imshow("Threshold Image", frame);
