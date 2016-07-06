@@ -60,7 +60,46 @@ void findPreciseCornerPoints(Point2f cornerPoints[4], Mat lineParamsMat){
         lineIntersection(line1point1,line1point2,line2point1,line2point2, lineIntersect);
         cornerPoints[i] = lineIntersect;
         
+        
     }
+}
+
+bool findTwoImplicitCorners(Point2f marker1Point, Mat lineParamsMarker1, Point2f marker2Point, Mat lineParamsMarker2, Point2f implicitCorners[2]){
+    
+    if(lineParamsMarker1.empty()||lineParamsMarker2.empty()){
+        return false;
+    }
+
+    Point2f marker1VerticalSupportPoint(marker1Point.x+30*lineParamsMarker1.at<float>(0,0), marker1Point.y+30*lineParamsMarker1.at<float>(1,2));
+    
+    Point2f marker2VerticalSupportPoint(marker2Point.x+30*lineParamsMarker2.at<float>(0,0), marker2Point.y+30*lineParamsMarker2.at<float>(1,2));
+    
+    Point2f marker1HorizontalSupportPoint(marker1Point.x+30*lineParamsMarker1.at<float>(0,1), marker1Point.y+30*lineParamsMarker1.at<float>(1,3));
+    Point2f marker2HorizontalSupportPoint(marker2Point.x+30*lineParamsMarker2.at<float>(0,1), marker2Point.y+30*lineParamsMarker2.at<float>(1,3));
+   
+    
+    Point2f lineIntersect1;
+    lineIntersection(marker1Point,marker1VerticalSupportPoint,marker2Point,marker2HorizontalSupportPoint, lineIntersect1);
+    implicitCorners[0] = lineIntersect1;
+    
+    Point2f lineIntersect2;
+    lineIntersection(marker1Point,marker1HorizontalSupportPoint,marker2Point,marker2VerticalSupportPoint, lineIntersect2);
+    implicitCorners[1] = lineIntersect2;
+   
+    
+    return true;
+    
+}
+
+Point2f findMarkerMiddlePoint(Mat lineParamsMat){
+    Point2f horizontalLine(lineParamsMat.at<float>(2,0), lineParamsMat.at<float>(3,0));
+    
+    Point2f verticalLine(lineParamsMat.at<float>(2,(1)%4), lineParamsMat.at<float>(3,(1)%4));
+    
+    //To get the middle point, we take the x coordinate of the horizonal line and the y coordinate of the vertical line
+    Point2f markerMiddlePoint(horizontalLine.x, verticalLine.y);
+
+    return markerMiddlePoint;
 }
 
 Point2f calculatePreciseEdgePoint(int stripeLength, Mat iplStripe, Point p, Point2f stripeVecY){
