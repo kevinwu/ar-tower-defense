@@ -1,17 +1,10 @@
-//
-//  main.cpp
-//  ARTowerDefense
-//
-//  Created by Kevin Wu on 17/06/16.
-//  Copyright © 2016 Kevin Wu. All rights reserved.
-//
-#include <opencv2/opencv.hpp>
 #include <iostream>
-#include <glfw/glfw3.h> /// this also includes other openGL headers
+#include <opencv2/opencv.hpp>
 #include "MarkerIdentification.h"
 #include "MarkerTracking.hpp"
 #include "PoseEstimation.h"
 #include <iomanip>
+#include <glfw/glfw3.h>
 
 using namespace cv;
 using namespace std;
@@ -22,14 +15,15 @@ int main(int argc, const char * argv[]) {
     CvMemStorage* memStorage =cvCreateMemStorage();
     
     /// Initialize values
-    int alpha_slider =85;
+    int alpha_slider = 100;
     
-    VideoCapture cap(1); // open the default camera
+    VideoCapture cap(0); // open the default camera
     if(!cap.isOpened()) { // check if we succeeded
         std::cout << "No camera found!\n"; //In this case, we show the supplied video
     }
     Mat grayFrame;
     namedWindow("Threshold Image",1);
+    
     createTrackbar("Threshold Trackbar", "Threshold Image", &alpha_slider, 255, NULL);
     
     int numberFrameCaptures = 0;
@@ -38,13 +32,12 @@ int main(int argc, const char * argv[]) {
     {
         Mat frame;
         cap >> frame; // get a new frame from camera
-        
         cvtColor(frame, grayFrame, CV_BGR2GRAY); //first parameter is input image, second parameter output image
+        
         
         Mat thresholded;
         
         threshold(grayFrame, thresholded, alpha_slider, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
-        
         CvSeq* contours;
         CvMat thresholded_(thresholded);
         
@@ -56,31 +49,24 @@ int main(int argc, const char * argv[]) {
         Mat lineParamsMarker2;
         
         int numberSeenContours = 0;
+
         
         //traversing all contours
         for(; contours; contours = contours->h_next){
             
             
             
-            if(numberSeenContours==2){
-                break;
-            }
-            
             CvSeq* result = cvApproxPoly(contours, sizeof(CvContour), memStorage, CV_POLY_APPROX_DP, cvContourPerimeter(contours)*0.02);
             
             if(result->total!=4) continue;
-            
             
             Mat result_ = cvarrToMat(result);
             Rect r = boundingRect(result_);
             
             //check for size
-            if (r.height<40 || r.width<40 || r.height>250|| r.width>250|| r.width > thresholded.cols - 10 || r.height > thresholded.rows - 10) {
+            if (r.height<30 || r.width<30 || r.height>150|| r.width>150|| r.width > thresholded.cols - 10 || r.height > thresholded.rows - 10) {
                 continue;
             }
-            
-            
-           
             
             const Point *rect = (const Point*) result_.data;
             int npts = result_.rows;
@@ -174,51 +160,20 @@ int main(int argc, const char * argv[]) {
             if(numberSeenContours==0){
                 marker1Point = cornerPoints[1];
                 lineParamsMarker1 = lineParamsMat;
-   
+                
             } else{
                 marker2Point = cornerPoints[2];
                 lineParamsMarker2 = lineParamsMat;
-      
+                
+            }
+        
+            if(++numberSeenContours==2){
+                break;
             }
             
-            //We now try to rectify the marker. First, we need to calculate the projective matrix
-            Point2f destinationRectangle[4];
-            
-            //initialise destinationRectangle
-            initialiseMarkerRectangle(destinationRectangle);
-            
-            /*
-            // transfer screen coords to camera coords
-            for(int i = 0; i < 4; i++)
-            {
-                cornerPoints[i].x -= 160; //here you have to use your own camera resolution (x) * 0.5
-                cornerPoints[i].y = -cornerPoints[i].y + 120; //here you have to use your own camera resolution (y) * 0.5
-            }
-            
-            float resultMatrix[16];
-            estimateSquarePose( resultMatrix, (cv::Point2f*)cornerPoints, 0.045 );
-            
-            //this part is only for printing
-            for (int i = 0; i<4; ++i) {
-                for (int j = 0; j<4; ++j) {
-                    cout << setw(6);
-                    cout << setprecision(4);
-                    cout << resultMatrix[4*i+j] << " ";
-                }
-                cout << "\n";
-            }
-            cout << "\n";
-            float x,y,z;
-            x = resultMatrix[3];
-            y = resultMatrix[7];
-            z = resultMatrix[11];
-            cout << "length: " << sqrt(x*x+y*y+z*z) << "\n";
-            cout << "\n";
-             */
-            numberSeenContours++;
-            
-        }
+     
 
+        }
         
         if(numberFrameCaptures > 6){
             if(marker1Point.x>marker2Point.x){
@@ -244,14 +199,41 @@ int main(int argc, const char * argv[]) {
             
             Point2f gameBoardCorners[4];
             gameBoardCorners[0] = marker1Point;
-            gameBoardCorners[1] = marker2Point;
-            gameBoardCorners[2] = implicitCorners[0];
+ 
+            gameBoardCorners[1] = implicitCorners[1];
+            gameBoardCorners[2] = marker2Point;
             gameBoardCorners[3] = implicitCorners[0];
+            
+            cv::Point2f targetCorners[4];
+            targetCorners[0].x = 0; targetCorners[0].y = 0;
+            targetCorners[1].x = 480; targetCorners[1].y = 0;
+            targetCorners[2].x = 480; targetCorners[2].y = 480;
+            targetCorners[3].x = 0; targetCorners[3].y = 480;
+            
+            //3x3 Transformationsmatrix
+            Mat projMat(cv::Size(3, 3), CV_32FC1);
+            projMat = getPerspectiveTransform(gameBoardCorners, targetCorners);
+            
+            
+            Mat grid(Size(480, 480), CV_32FC1);
+            
+            
+            //change the perspective in the marker image using the previously calculated matrix
+            warpPerspective(frame, grid, projMat, Size(480, 480));
+
+            Mat grayGrid;
+            cvtColor(grid, grayGrid, CV_BGR2GRAY);
+            imshow("gray", grayGrid);
+            
+            Mat thresholdedGrid;
+            threshold(grayGrid, thresholdedGrid, alpha_slider, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
+  
+            imshow("swag", grid);
+            imshow("more swag", thresholdedGrid);
+
         }
         
         imshow("Threshold Image", frame);
-        
-        
         char keypress;
         keypress = waitKey(30);
         if(keypress==27) break;
@@ -265,5 +247,7 @@ int main(int argc, const char * argv[]) {
     //release heap (program exit)
     cvReleaseMemStorage(&memStorage);
     
+    // the camera will be deinitialized automatically in VideoCapture destructor
     return 0;
+}
 }
