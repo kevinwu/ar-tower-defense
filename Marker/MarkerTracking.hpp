@@ -13,6 +13,11 @@ bool lineIntersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2, Point2f &r
 //Using two lines, find the intersection
 void findPreciseCornerPoints(Point2f cornerPoints[4], Mat lineParamsMat);
 
+//Given the lines surrounding a marker, find the middle point
+Point2f findMarkerMiddlePoint(Mat lineParamsMat);
+
+bool findTwoImplicitCorners(Point2f marker1Point, Mat lineParamsMarker1, Point2f marker2Point, Mat lineParamsMarker2, Point2f implicitCorners[2]);
+
 //Given some corner points- render them onto the image
 void drawCornerPoints(Mat frame, Point2f cornerPoints[4]);
 
