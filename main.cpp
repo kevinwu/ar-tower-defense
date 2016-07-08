@@ -20,8 +20,8 @@ using namespace cv;
 using namespace std;
 
 
-#define FIELD_SIZE_ROWS 20
-#define FIELD_SIZE_COLS 20
+#define FIELD_SIZE_ROWS 100
+#define FIELD_SIZE_COLS 141
 
 const int EXIT = -1;
 const int FREE_FIELD = 0;
@@ -212,7 +212,7 @@ int main(int ac, char** av)
     }
     
     namedWindow("frame",1);
-	int xChange = 365;
+	int xChange = 330;
 	int yChange = 260;
 	cv::createTrackbar("xChange", "frame", &xChange, 1024, trackbarHandler, &xChange);
 	cv::createTrackbar("yChange", "frame", &yChange, 1024, trackbarHandler, &yChange);
@@ -259,20 +259,20 @@ int main(int ac, char** av)
   
         cv::Point2f targetCorners[4];
         targetCorners[0].x = 0; targetCorners[0].y = 0;
-        targetCorners[1].x = 20; targetCorners[1].y = 0;
-        targetCorners[2].x = 20; targetCorners[2].y = 20;
-        targetCorners[3].x = 0; targetCorners[3].y = 20;
+		targetCorners[1].x = FIELD_SIZE_COLS; targetCorners[1].y = 0;
+		targetCorners[2].x = FIELD_SIZE_COLS; targetCorners[2].y = FIELD_SIZE_ROWS;
+		targetCorners[3].x = 0; targetCorners[3].y = FIELD_SIZE_ROWS;
         
         //3x3 Transformationsmatrix
         Mat projMat(cv::Size(3, 3), CV_32FC1);
         projMat = getPerspectiveTransform(gameBoardCorners, targetCorners);
         
         
-        Mat grid(Size(20, 20), CV_32FC1);
+		Mat grid(Size(FIELD_SIZE_COLS, FIELD_SIZE_ROWS), CV_32FC1);
         
         
         //change the perspective in the marker image using the previously calculated matrix
-        warpPerspective(frame, grid, projMat, Size(20, 20));
+		warpPerspective(frame, grid, projMat, Size(FIELD_SIZE_COLS, FIELD_SIZE_ROWS));
         
         Mat grayGrid;
         cvtColor(grid, grayGrid, CV_BGR2GRAY);

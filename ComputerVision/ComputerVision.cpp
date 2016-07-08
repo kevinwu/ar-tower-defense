@@ -179,7 +179,7 @@ void findGameBoardCorners (Mat &frame, Point2f gameBoardCorners[4], CvMemStorage
     circle(frame, implicitCorners[1], 6, Scalar(0,255,255), -1);
     
     gameBoardCorners[0] = marker1Point;
-    gameBoardCorners[1] = implicitCorners[1];
+    gameBoardCorners[3] = implicitCorners[1];
     gameBoardCorners[2] = marker2Point;
-    gameBoardCorners[3] = implicitCorners[0];
+    gameBoardCorners[1] = implicitCorners[0];
 }
