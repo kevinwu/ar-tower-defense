@@ -102,29 +102,8 @@ void display(GLFWwindow* window, const cv::Mat &img_bgr, float resultMatrix[16])
 	glTranslatef(0, -5, 0);
 
 
-	// draw 3 white spheres
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	drawSphere(0.8, 10, 10);
-	glTranslatef(0.0, 0.8, 0.0);
-	drawSphere(0.6, 10, 10);
-	glTranslatef(0.0, 0.6, 0.0);
-	drawSphere(0.4, 10, 10);
-
-	// draw the eyes
-	glPushMatrix();
-	glColor4f(0.0, 0.0, 0.0, 1.0);
-	glTranslatef(0.2, 0.2, 0.2);
-	drawSphere(0.066, 10, 10);
-	glTranslatef(0, 0, -0.4);
-	drawSphere(0.066, 10, 10);
-	glPopMatrix();
-
-	// draw a nose
-	glColor4f(1.0, 0.5, 0.0, 1.0);
-	glTranslatef(0.3, 0.0, 0.0);
-	glRotatef(90, 0, 1, 0);
-	drawCone(0.1, 0.3, 10, 10);
-
+	// drawMannequin(2);
+	drawTurret(1.2);
 
 }
 
