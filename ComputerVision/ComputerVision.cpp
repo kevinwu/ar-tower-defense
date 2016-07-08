@@ -20,7 +20,7 @@ void findGameBoardCorners (Mat &frame, Point2f gameBoardCorners[4], CvMemStorage
     Mat thresholded;
     
     threshold(grayFrame, thresholded, alpha_slider, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
-    imshow("test", thresholded);
+    imshow("Thresholded Camera Image", thresholded);
     CvSeq* contours;
     CvMat thresholded_(thresholded);
     

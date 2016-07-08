@@ -37,11 +37,11 @@ int main(int ac, char** av)
     //create heap on startup
     CvMemStorage* memStorage =cvCreateMemStorage();
 
-	namedWindow("frame", 1);
+	namedWindow("Settings", 1);
 	int xChange = 330;
 	int yChange = 274;
-	cv::createTrackbar("xChange", "frame", &xChange, 1024, trackbarHandler, &xChange);
-	cv::createTrackbar("yChange", "frame", &yChange, 1024, trackbarHandler, &yChange);
+	cv::createTrackbar("xChange", "Settings", &xChange, 1024, trackbarHandler, &xChange);
+	cv::createTrackbar("yChange", "Settings", &yChange, 1024, trackbarHandler, &yChange);
 
 	GLFWwindow* window;
 	/* Initialize the library */
@@ -50,7 +50,7 @@ int main(int ac, char** av)
 
 	// initialize the window system
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(camera_width, camera_height, "Exercise 8 - Combine", NULL, NULL);
+	window = glfwCreateWindow(camera_width, camera_height, "Final Game Result", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -118,7 +118,7 @@ int main(int ac, char** av)
 		cvtColor(grid, grayGrid, CV_BGR2GRAY);
 		Mat thresholdedGrid;
 		threshold(grayGrid, thresholdedGrid, 110, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
-		imshow("Thresholded View", thresholdedGrid);
+		imshow("Thresholded GameField Grid", thresholdedGrid);
 		
 		// -------------------- 3. Transform the relative coordinate of the monster into the aboslute coordinates on the map -------------------- 
 		cv::Matx33f warp = projMat;
