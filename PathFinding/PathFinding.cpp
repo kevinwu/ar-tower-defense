@@ -246,7 +246,7 @@ std::vector<int> getNextStep(int pathMatrix[][FIELD_SIZE_COLS], int y, int x)
 
 }
 
-void main()
+/*void main()
 {
 	// matrix has 11x11 size, with 9x9 inner size (because of outer wall)
 	int matrix[FIELD_SIZE_ROWS][FIELD_SIZE_COLS] = { 0 }; //y,x (with the top left corner being (0,0)
@@ -266,4 +266,4 @@ void main()
 
 
 	system("pause");
-}
+}*/

@@ -50,7 +50,8 @@ int main(int ac, char** av)
     //Computer Vision Stuff
     //create heap on startup
     CvMemStorage* memStorage =cvCreateMemStorage();
-    VideoCapture cap(1); // open the default camera
+    VideoCapture cap(0); // open the default camera
+	// VideoCapture cap(1); // open the USB camera
     if(!cap.isOpened()) { // check if we succeeded
         std::cout << "No camera found!\n"; //In this case, we show the supplied video
     }
