@@ -212,8 +212,8 @@ int main(int ac, char** av)
     }
     
     namedWindow("frame",1);
-	int xChange = 550;
-	int yChange = 220;
+	int xChange = 365;
+	int yChange = 260;
 	cv::createTrackbar("xChange", "frame", &xChange, 1024, trackbarHandler, &xChange);
 	cv::createTrackbar("yChange", "frame", &yChange, 1024, trackbarHandler, &yChange);
 
