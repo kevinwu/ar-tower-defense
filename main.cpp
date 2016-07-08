@@ -73,7 +73,7 @@ int main(int ac, char** av)
 	initGL(ac, av);
     
 	int i = 0;
-    while (true) {
+	while (!glfwWindowShouldClose(window)) {
 		milliseconds startTime = duration_cast< milliseconds >(
 			system_clock::now().time_since_epoch()
 			);
