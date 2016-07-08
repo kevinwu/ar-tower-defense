@@ -16,8 +16,8 @@ using namespace cv;
 using namespace std;
 
 
-#define FIELD_SIZE_ROWS 11
-#define FIELD_SIZE_COLS 11
+#define FIELD_SIZE_ROWS 20
+#define FIELD_SIZE_COLS 20
 
 const int EXIT = -1;
 const int FREE_FIELD = 0;
@@ -60,35 +60,48 @@ int main(int ac, char** av)
         cap >> frame; // get a new frame from camera
         
         Point2f gameBoardCorners[4];
-        cout << gameBoardCorners[0];
+ 
         findGameBoardCorners(frame, gameBoardCorners, memStorage);
-        cout << gameBoardCorners[0];
+  
         cv::Point2f targetCorners[4];
         targetCorners[0].x = 0; targetCorners[0].y = 0;
-        targetCorners[1].x = 480; targetCorners[1].y = 0;
-        targetCorners[2].x = 480; targetCorners[2].y = 480;
-        targetCorners[3].x = 0; targetCorners[3].y = 480;
+        targetCorners[1].x = 20; targetCorners[1].y = 0;
+        targetCorners[2].x = 20; targetCorners[2].y = 20;
+        targetCorners[3].x = 0; targetCorners[3].y = 20;
         
         //3x3 Transformationsmatrix
         Mat projMat(cv::Size(3, 3), CV_32FC1);
         projMat = getPerspectiveTransform(gameBoardCorners, targetCorners);
         
         
-        Mat grid(Size(480, 480), CV_32FC1);
+        Mat grid(Size(20, 20), CV_32FC1);
         
         
         //change the perspective in the marker image using the previously calculated matrix
-        warpPerspective(frame, grid, projMat, Size(480, 480));
+        warpPerspective(frame, grid, projMat, Size(20, 20));
         
         Mat grayGrid;
         cvtColor(grid, grayGrid, CV_BGR2GRAY);
-        imshow("gray", grayGrid);
+       
         
         Mat thresholdedGrid;
         threshold(grayGrid, thresholdedGrid, 110, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
         
-        imshow("frame", grid);
+        
         imshow("more swag", thresholdedGrid);
+        
+        cv::Matx33f warp = projMat;
+        
+        // Punkt relative zum Spielfeld (Koordinaten des Punkts entsprechen Koordinaten relativ zum Spielfeld)
+        cv::Point2f relative_point = cv::Point2f(monster_current_gamefield_position.at(1), monster_current_gamefield_position.at(0));
+        
+        // Punkt mit der inversen projektiven Transformationsmatrix multiplizieren
+        cv::Point3f homogeneos = warp.inv() * relative_point;
+        
+        // Ergebnispunkt -> nun relativ zum gesamten Kamerabild
+        cv::Point2f result(homogeneos.x, homogeneos.y);
+        
+        circle(frame, result, 6, Scalar(255,255,255), -1);
         
         milliseconds startTime = duration_cast< milliseconds >(
                                                                system_clock::now().time_since_epoch()
@@ -122,7 +135,7 @@ int main(int ac, char** av)
                                                              );
         milliseconds elapsed = endTime - startTime;
         std::this_thread::sleep_for(
-                                    milliseconds(1000) - milliseconds(elapsed)
+                                    milliseconds(200) - milliseconds(elapsed)
                                     );
         
         // print out the current monster position
