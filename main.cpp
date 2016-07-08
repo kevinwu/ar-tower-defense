@@ -329,11 +329,12 @@ int main(int ac, char** av)
                                                              );
         milliseconds elapsed = endTime - startTime;
         std::this_thread::sleep_for(
-                                    milliseconds(200) - milliseconds(elapsed)
+                                    milliseconds(1000) - milliseconds(elapsed)
                                     );
         
         // print out the current monster position
-        std::cout << i << "\tMonster position: \tx: " << monster_current_gamefield_position.at(1) << "\ty: " << monster_current_gamefield_position.at(0) << "\n";
+        std::cout << i << "\tMonster relative position: \tx: " << monster_current_gamefield_position.at(1) << "\ty: " << monster_current_gamefield_position.at(0) << "\n";
+		std::cout << i << "\tMonster absolute position: \tx: " << homogeneos.x << "\ty: " << homogeneos.y << "\n";
         i++;
         
         // imshow("frame", frame);
