@@ -347,9 +347,9 @@ int main(int ac, char** av)
 		figureCorners[3] = Point2f(homogeneous.x-50, homogeneous.y+50);*/
 		/* cout << homogeneous.x - 550;
 		cout << "\n"; */
-		figureCorners[0] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange + 10);
-		figureCorners[1] = Point2f(homogeneos.x - xChange + 10, homogeneos.y - yChange + 10);
-		figureCorners[2] = Point2f(homogeneos.x - xChange + 10, homogeneos.y - yChange);
+		figureCorners[0] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange + 20);
+		figureCorners[1] = Point2f(homogeneos.x - xChange + 20, homogeneos.y - yChange + 20);
+		figureCorners[2] = Point2f(homogeneos.x - xChange + 20, homogeneos.y - yChange);
 		figureCorners[3] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange);
 		estimateSquarePose(resultMatrix, (cv::Point2f*)figureCorners, kMarkerSize); // TODO: shouldn't be gameBoardCorners, but the corners around the figure
 
