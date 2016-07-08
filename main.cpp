@@ -330,18 +330,20 @@ int main(int ac, char** av)
         
         // imshow("frame", frame);
 		float resultMatrix[16];
-		const double kMarkerSize = 0.02;
-		Point2f aroundMonsterCorners[4];
-		/*aroundMonsterCorners[0] = Point2f(result.x - 25, result.y - 25);
-		aroundMonsterCorners[1] = Point2f(result.x + 25, result.y - 25);
-		aroundMonsterCorners[2] = Point2f(result.x + 25, result.y + 25);
-		aroundMonsterCorners[3] = Point2f(result.x - 25, result.y + 25);*/
-		aroundMonsterCorners[0] = Point2f(0 + +monster_current_gamefield_position.at(1) * 100, 500 + monster_current_gamefield_position.at(0) * 100);
-		aroundMonsterCorners[1] = Point2f(500 + monster_current_gamefield_position.at(1) * 100, 500 + monster_current_gamefield_position.at(0) * 100);
-		aroundMonsterCorners[2] = Point2f(500 + +monster_current_gamefield_position.at(1) * 100, 0 + monster_current_gamefield_position.at(0) * 100);
-		aroundMonsterCorners[3] = Point2f(0 + +monster_current_gamefield_position.at(1) * 100, 0 + monster_current_gamefield_position.at(0) * 100);
+		const double kMarkerSize = 0.048;
 
-		estimateSquarePose(resultMatrix, aroundMonsterCorners, kMarkerSize); // TODO: shouldn't be gameBoardCorners, but the corners around the figure
+		Point2f figureCorners[4];
+		/*figureCorners[0] = Point2f(homogeneous.x-50, homogeneous.y-50);
+		figureCorners[1] = Point2f(homogeneous.x+50, homogeneous.y-50);
+		figureCorners[2] = Point2f(homogeneous.x+50, homogeneous.y+50);
+		figureCorners[3] = Point2f(homogeneous.x-50, homogeneous.y+50);*/
+		/* cout << homogeneous.x - 550;
+		cout << "\n"; */
+		figureCorners[0] = Point2f(homogeneos.x - 550, homogeneos.y - 210);
+		figureCorners[1] = Point2f(homogeneos.x - 540, homogeneos.y - 210);
+		figureCorners[2] = Point2f(homogeneos.x - 540, homogeneos.y - 220);
+		figureCorners[3] = Point2f(homogeneos.x - 550, homogeneos.y - 220);
+		estimateSquarePose(resultMatrix, (cv::Point2f*)figureCorners, kMarkerSize); // TODO: shouldn't be gameBoardCorners, but the corners around the figure
 
 		/* Render here */
 		display(window, frame, resultMatrix);
