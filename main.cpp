@@ -8,6 +8,7 @@
 
 #include "DrawUnits.h"
 #include "OpenGL/GLMethods.hpp"
+#include "GameField/GameField.hpp"
 
 #define GLFW_INCLUDE_GLU // add support for GLU with GLFW
 #include <GLFW/glfw3.h> /// this also includes other openGL headers
@@ -20,39 +21,15 @@
 using namespace cv;
 using namespace std;
 
-
-#define FIELD_SIZE_ROWS 100
-#define FIELD_SIZE_COLS 141
-
-const int EXIT = -1;
-const int FREE_FIELD = 0;
-
 using namespace std::chrono;
 
 void trackbarHandler(int pos, void* slider_value) {
 	*((int*)slider_value) = pos;
 }
 
-std::vector<int> getNextMonsterStep(std::vector<int> monster_current_gamefield_position, int gamefield_matrix[][FIELD_SIZE_COLS])
-{
-    // for the beginning, just move the monster by x+1.
-    // FUTUREWORK: More sophisticated path finding
-    return std::vector<int>({
-        monster_current_gamefield_position.at(0),
-        monster_current_gamefield_position.at(1) + 1
-    });
-}
-
 int main(int ac, char** av)
 {
-    // y, x
-    std::vector<int> monster_current_gamefield_position = {
-        FIELD_SIZE_ROWS / 2,
-        -1
-    };
-    int gamefield_matrix[FIELD_SIZE_ROWS][FIELD_SIZE_COLS] = { FREE_FIELD }; //y,x (with the top left corner being (0,0)
-    gamefield_matrix[FIELD_SIZE_ROWS / 2][FIELD_SIZE_COLS - 1] = EXIT;
-    int i = 0;
+	GameField gamefield = GameField();
     
     //Computer Vision Stuff
     //create heap on startup
@@ -101,12 +78,12 @@ int main(int ac, char** av)
 	// initialize the GL library
 	initGL(ac, av);
     
+	int i = 0;
     while (true) {
         Mat frame;
         cap >> frame; // get a new frame from camera
         
         Point2f gameBoardCorners[4];
- 
         findGameBoardCorners(frame, gameBoardCorners, memStorage);
   
         cv::Point2f targetCorners[4];
@@ -139,7 +116,7 @@ int main(int ac, char** av)
         cv::Matx33f warp = projMat;
         
         // Punkt relative zum Spielfeld (Koordinaten des Punkts entsprechen Koordinaten relativ zum Spielfeld)
-        cv::Point2f relative_point = cv::Point2f(monster_current_gamefield_position.at(1), monster_current_gamefield_position.at(0));
+		cv::Point2f relative_point = cv::Point2f(gamefield.getMonsterPosition().at(1), gamefield.getMonsterPosition().at(0));
         
         // Punkt mit der inversen projektiven Transformationsmatrix multiplizieren
         cv::Point3f homogeneos = warp.inv() * relative_point;
@@ -154,16 +131,16 @@ int main(int ac, char** av)
                                                                );
         
         // check if monster has reached the exit. if yes, place it back on the start. if no, move it by one step
-        if (monster_current_gamefield_position == std::vector<int>({ FIELD_SIZE_ROWS / 2, FIELD_SIZE_COLS - 1 })){
+		if (gamefield.getMonsterPosition() == std::vector<int>({ FIELD_SIZE_ROWS / 2, FIELD_SIZE_COLS - 1 })){
             std::cout << "EXIT was reached by the monster. Monster will be placed at the start again.\n";
             // put monster on start field on gamefield
-            monster_current_gamefield_position = {
+            gamefield.setMonsterPosition(vector<int>({
                 FIELD_SIZE_ROWS / 2,
                 0
-            };
+            }));
         }
         else{
-            monster_current_gamefield_position = getNextMonsterStep(monster_current_gamefield_position, gamefield_matrix);
+			gamefield.monsterStep();
         }
         
         // TODO: INTEGRATE: render gamefield with monster on it
@@ -185,7 +162,7 @@ int main(int ac, char** av)
                                     );
         
         // print out the current monster position
-        std::cout << i << "\tMonster relative position: \tx: " << monster_current_gamefield_position.at(1) << "\ty: " << monster_current_gamefield_position.at(0) << "\n";
+		std::cout << i << "\tMonster relative position: \tx: " << gamefield.getMonsterPosition().at(1) << "\ty: " << gamefield.getMonsterPosition().at(0) << "\n";
 		std::cout << i << "\tMonster absolute position: \tx: " << homogeneos.x << "\ty: " << homogeneos.y << "\n";
         i++;
         
