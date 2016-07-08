@@ -34,6 +34,10 @@ unsigned char bkgnd[camera_width*camera_height * 3];
 
 using namespace std::chrono;
 
+void trackbarHandler(int pos, void* slider_value) {
+	*((int*)slider_value) = pos;
+}
+
 std::vector<int> getNextMonsterStep(std::vector<int> monster_current_gamefield_position, int gamefield_matrix[][FIELD_SIZE_COLS])
 {
     // for the beginning, just move the monster by x+1.
@@ -208,6 +212,10 @@ int main(int ac, char** av)
     }
     
     namedWindow("frame",1);
+	int xChange = 550;
+	int yChange = 220;
+	cv::createTrackbar("xChange", "frame", &xChange, 1024, trackbarHandler, &xChange);
+	cv::createTrackbar("yChange", "frame", &yChange, 1024, trackbarHandler, &yChange);
 
 
 	GLFWwindow* window;
@@ -339,10 +347,10 @@ int main(int ac, char** av)
 		figureCorners[3] = Point2f(homogeneous.x-50, homogeneous.y+50);*/
 		/* cout << homogeneous.x - 550;
 		cout << "\n"; */
-		figureCorners[0] = Point2f(homogeneos.x - 550, homogeneos.y - 210);
-		figureCorners[1] = Point2f(homogeneos.x - 540, homogeneos.y - 210);
-		figureCorners[2] = Point2f(homogeneos.x - 540, homogeneos.y - 220);
-		figureCorners[3] = Point2f(homogeneos.x - 550, homogeneos.y - 220);
+		figureCorners[0] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange + 10);
+		figureCorners[1] = Point2f(homogeneos.x - xChange + 10, homogeneos.y - yChange + 10);
+		figureCorners[2] = Point2f(homogeneos.x - xChange + 10, homogeneos.y - yChange);
+		figureCorners[3] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange);
 		estimateSquarePose(resultMatrix, (cv::Point2f*)figureCorners, kMarkerSize); // TODO: shouldn't be gameBoardCorners, but the corners around the figure
 
 		/* Render here */
