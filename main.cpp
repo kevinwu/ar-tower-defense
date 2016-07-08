@@ -1,11 +1,13 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "MarkerIdentification.h"
-#include "MarkerTracking.hpp"
-#include "PoseEstimation.h"
-#include "ComputerVision.hpp"
+#include "Marker/MarkerIdentification.h"
+#include "Marker/MarkerTracking.hpp"
+#include "PoseEstimation/PoseEstimation.h"
+#include "ComputerVision/ComputerVision.hpp"
 #include <iomanip>
-#include <glfw/glfw3.h>
+
+#define GLFW_INCLUDE_GLU // add support for GLU with GLFW
+#include <GLFW/glfw3.h> /// this also includes other openGL headers
 
 #include <ctime>
 #include <vector>

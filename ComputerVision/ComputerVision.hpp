@@ -12,9 +12,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "MarkerIdentification.h"
-#include "MarkerTracking.hpp"
-#include "PoseEstimation.h"
+#include "../Marker/MarkerIdentification.h"
+#include "../Marker/MarkerTracking.hpp"
+#include "../PoseEstimation/PoseEstimation.h"
 
 #endif /* ComputerVision_hpp */
 
