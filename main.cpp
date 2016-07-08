@@ -119,6 +119,8 @@ int main(int ac, char** av)
 		Mat thresholdedGrid;
 		threshold(grayGrid, thresholdedGrid, 110, 255, CV_THRESH_BINARY); //applies thresholding to gray Image
 		imshow("Thresholded GameField Grid", thresholdedGrid);
+
+		gamefield.readCameraForWalls(thresholdedGrid);
 		
 		// -------------------- 3. Transform the relative coordinate of the monster into the aboslute coordinates on the map -------------------- 
 		cv::Matx33f warp = projMat;
