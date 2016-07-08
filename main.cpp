@@ -213,7 +213,7 @@ int main(int ac, char** av)
     
     namedWindow("frame",1);
 	int xChange = 330;
-	int yChange = 260;
+	int yChange = 274;
 	cv::createTrackbar("xChange", "frame", &xChange, 1024, trackbarHandler, &xChange);
 	cv::createTrackbar("yChange", "frame", &yChange, 1024, trackbarHandler, &yChange);
 
@@ -329,7 +329,7 @@ int main(int ac, char** av)
                                                              );
         milliseconds elapsed = endTime - startTime;
         std::this_thread::sleep_for(
-                                    milliseconds(1000) - milliseconds(elapsed)
+                                    milliseconds(100) - milliseconds(elapsed)
                                     );
         
         // print out the current monster position
@@ -339,7 +339,7 @@ int main(int ac, char** av)
         
         // imshow("frame", frame);
 		float resultMatrix[16];
-		const double kMarkerSize = 0.048;
+		const double kMarkerSize = 0.028;
 
 		Point2f figureCorners[4];
 		/*figureCorners[0] = Point2f(homogeneous.x-50, homogeneous.y-50);
@@ -348,10 +348,10 @@ int main(int ac, char** av)
 		figureCorners[3] = Point2f(homogeneous.x-50, homogeneous.y+50);*/
 		/* cout << homogeneous.x - 550;
 		cout << "\n"; */
-		figureCorners[0] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange + 20);
-		figureCorners[1] = Point2f(homogeneos.x - xChange + 20, homogeneos.y - yChange + 20);
-		figureCorners[2] = Point2f(homogeneos.x - xChange + 20, homogeneos.y - yChange);
-		figureCorners[3] = Point2f(homogeneos.x - xChange, homogeneos.y - yChange);
+		figureCorners[0] = Point2f(0.7*(homogeneos.x - xChange), homogeneos.y - yChange + 20);
+		figureCorners[1] = Point2f(0.7*(homogeneos.x - xChange +20), homogeneos.y - yChange + 20);
+		figureCorners[2] = Point2f(0.7*(homogeneos.x - xChange +20), homogeneos.y - yChange);
+		figureCorners[3] = Point2f(0.7*(homogeneos.x - xChange), homogeneos.y - yChange);
 		estimateSquarePose(resultMatrix, (cv::Point2f*)figureCorners, kMarkerSize); // TODO: shouldn't be gameBoardCorners, but the corners around the figure
 
 		/* Render here */
